@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://tomcat.apache.org/xml"
+           xmlns:jaspic="http://tomcat.apache.org/xml"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+           version="1.0">
+  <xs:element name="jaspic-providers">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="provider" minOccurs="0" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="property" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                  <xs:attribute name="name" use="required" type="jaspic:propertyname" />
+                  <xs:attribute name="value" use="required" type="xs:string" />
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+            <xs:attribute name="className" type="xs:string" />
+            <xs:attribute name="layer" type="xs:string" />
+            <xs:attribute name="appContext" type="xs:string" />
+            <xs:attribute name="description" type="xs:string" />
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+      <xs:attribute name="version" type="xs:string" />
+    </xs:complexType>
+  </xs:element>
+  <xs:simpleType name="propertyname">
+    <xs:restriction base="xs:string">
+      <xs:minLength value="1"/>
+    </xs:restriction>
+  </xs:simpleType>
+</xs:schema>

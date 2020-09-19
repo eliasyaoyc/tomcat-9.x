@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Server 是 Tomcat 中最顶层的组件，它可以包含多个 Service 组件 -->
+<Server port="8005" shutdown="SHUTDOWN">
+    <Listener className="org.apache.catalina.startup.VersionLoggerListener"/>
+    <Listener className="org.apache.catalina.core.AprLifecycleListener" SSLEngine="on"/>
+    <Listener className="org.apache.catalina.core.JreMemoryLeakPreventionListener"/>
+    <Listener className="org.apache.catalina.mbeans.GlobalResourcesLifecycleListener"/>
+    <Listener className="org.apache.catalina.core.ThreadLocalLeakPreventionListener"/>
+
+    <!-- https://blog.csdn.net/jiaomingliang/article/details/47393141 -->
+
+    <GlobalNamingResources>
+        <Resource name="UserDatabase" auth="Container" pathname="conf/tomcat-users.xml"
+                  type="org.apache.catalina.UserDatabase"
+                  description="User database that can be updated and saved"
+                  factory="org.apache.catalina.users.MemoryUserDatabaseFactory"/>
+    </GlobalNamingResources>
+
+    <!-- Service 组件相当于 Connetor 和 Engine 组件的包装器，它将一个或者多个 Connector 组件和一个 Engine 建立关联 -->
+    <!-- 定义一个叫 Catalina 的服务，并将 Http,AJP（定向包的协议）这两个 Connector 关联到了一个名为 Catalina 的 Service -->
+    <Service name="Catalina">
+        <!-- Connector 是 Tomcat 中监听 TCP 网络连接的组件，一个 Connector 会监听一个独立的端口来处理来自客户端的连接 -->
+        <Connector port="8080" protocol="HTTP/1.1" connectionTimeout="20000" redirectPort="8443"/>
+        <Connector port="8009" protocol="AJP/1.3" redirectPort="8443"/>
+
+        <!-- Tomcat 中有一个容器的概念，而 Engine,Host,Context 都属于 Contanier -->
+        <!--一个 Engine 可以包含一个或者多个 Host,也就是说我们一个 Tomcat 的实例可以配置多个虚拟主机 -->
+        <Engine name="Catalina" defaultHost="localhost">
+            <Realm className="org.apache.catalina.realm.LockOutRealm">
+                <Realm className="org.apache.catalina.realm.UserDatabaseRealm" resourceName="UserDatabase"/>
+            </Realm>
+
+            <!-- Host 定义了一个虚拟主机，一个虚拟主机可以有多个 Context -->
+            <!--appBase 为 webapps，也就是 <CATALINA_HOME>\webapps 目录，
+                unpackingWARS 属性指定在 appBase 指定的目录中的 war 包都自动的解压，缺省配置为 true,
+                autoDeploy 属性指定是否对加入到 appBase 目录的 war 包进行自动的部署，缺省为 true -->
+            <Host name="localhost" appBase="webapps" unpackWARs="true" autoDeploy="true">
+
+                <!--每一个运行的 webapp 最终都是以 Context 的形成存在，每个 Context 都有一个根路径和 请求 URL 路径-->
+                <Context path="/mypath" docBase="/Users/xxx" reloadable="true"></Context>
+
+                <!-- Valve 是 Tomcat中责任链模式的实现，通过链接多个 Valve 对请求进行处理 -->
+                <!-- 负责拦截每个请求，然后记录一条访问日志 -->
+                <Valve className="org.apache.catalina.valves.AccessLogValve" directory="logs"
+                       prefix="localhost_access_log" suffix=".txt"
+                       pattern="%h %l %u %t &quot;%r&quot; %s %b"/>
+            </Host>
+        </Engine>
+    </Service>
+</Server>
